@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Текстовый редактор</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(to right, #ffffff, #ffffff);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            color: #000000;
+        }
+        #container {
+            background: rgba(199, 199, 199, 0.9);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 800px;
+            transition: all 0.3s ease;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 2.5em; /* Увеличен размер шрифта */
+            font-family: 'Pacifico', cursive; /* Применен новый шрифт */
+        }
+        #editor {
+            width: 96%;
+            height: 400px;
+            border: 2px solid #000000;
+            padding: 15px;
+            font-size: 18px;
+            border-radius: 5px;
+            overflow-y: auto;
+            background: #ffffff;
+            transition: background-color 0.3s ease;
+            resize: vertical; /* Позволяет изменять размер только по вертикали */
+            font-size: 14px; /* Устанавливаем начальный размер текста */
+        }
+        #toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        #toolbar button, #toolbar select, #toolbar input[type="file"] {
+            background-color: #7e7e7e;
+            color: rgb(255, 255, 255);
+            padding: 10px 15px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-right: 0px;
+        }
+        #toolbar button:hover, #toolbar select:hover, #toolbar input[type="file"]:hover {
+            background-color: #383838;
+        }
+        #save-button {
+            background-color: #3cff00;
+        }
+        #save-button:hover {
+            background-color: #1100ff;
+        }
+        #theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #424242;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #theme-toggle:hover {
+            background-color: #1f1f1f;
+        }
+        /* Dark theme styles */
+        body.dark {
+            background: #333;
+            color: #fff;
+        }
+        #container.dark {
+            background: #444;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        #editor.dark {
+            background: #555;
+            border: 2px solid #777;
+        }
+    </style>
+</head>
+<body>
+    <button id="theme-toggle">Сменить на темную тему</button>
+    <div id="container">
+        <h1>Текстовый редактор</h1>
+        <div id="toolbar">
+            <button id="bold">Жирный</button>
+            <button id="italic">Курсив</button>
+            <button id="underline">Подчеркивание</button>
+            <select id="font-family">
+                <option value="Arial">Arial</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Verdana">Verdana</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Trebuchet MS">Trebuchet MS</option>
+                <option value="Comic Sans MS">Comic Sans MS</option>
+                <option value="Impact">Impact</option>
+                <option value="Lucida Console">Lucida Console</option>
+                <option value="Tahoma">Tahoma</option>
+                <option value="Palatino Linotype">Palatino Linotype</option>
+            </select>
+            <select id="font-size">
+                <option value="2">2</option>
+                <option value="4">4</option>
+                <option value="6">6</option>
+                <option value="8">8</option>
+            </select>
+            <input type="color" id="color-picker">
+            <input type="file" id="media-upload" accept="image/*,video/*" style="display: none;">
+            <button id="upload-button">Загрузить медиа</button>
+            <button id="save-button">Сохранить</button>
+        </div>
+        <div id="editor" contenteditable="true"></div>
+    </div>
+
+    <script>
+        const editor = document.getElementById('editor');
+        const boldButton = document.getElementById('bold');
+        const italicButton = document.getElementById('italic');
+        const underlineButton = document.getElementById('underline');
+        const fontFamilySelect = document.getElementById('font-family');
+        const fontSizeSelect = document.getElementById('font-size');
+        const colorPicker = document.getElementById('color-picker');
+        const saveButton = document.getElementById('save-button');
+        const themeToggle = document.getElementById('theme-toggle');
+        const mediaUpload = document.getElementById('media-upload');
+        const uploadButton = document.getElementById('upload-button');
+
+        // Установка начального размера текста
+        editor.style.fontSize = "14px"; // Размер 2 в пикселях (примерно 14px)
+
+        function formatText(command, value) {
+            document.execCommand(command, false, value);
+        }
+
+        boldButton.addEventListener('click', () => formatText('bold', null));
+        italicButton.addEventListener('click', () => formatText('italic', null));
+        underlineButton.addEventListener('click', () => formatText('underline', null));
+        fontFamilySelect.addEventListener('change', () => formatText('fontName', fontFamilySelect.value));
+        fontSizeSelect.addEventListener('change', () => formatText('fontSize', fontSizeSelect.value));
+        colorPicker.addEventListener('change', () => formatText('foreColor', colorPicker.value));
+
+        uploadButton.addEventListener('click', () => {
+            mediaUpload.click();
+        });
+
+        mediaUpload.addEventListener('change', (event) => {
+            const files = event.target.files;
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const mediaElement = document.createElement(file.type.startsWith('image/') ? 'img' : 'video');
+                    mediaElement.src = e.target.result;
+                    mediaElement.style.maxWidth = '100%';
+                    mediaElement.style.marginTop = '10px';
+                    mediaElement.controls = file.type.startsWith('video/');
+                    editor.appendChild(mediaElement);
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        saveButton.addEventListener('click', () => {
+            const content = editor.innerHTML;
+            const blob = new Blob([content], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'document.html';
+            link.click();
+        });
+
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            document.getElementById('container').classList.toggle('dark');
+            editor.classList.toggle('dark');
+            themeToggle.textContent = document.body.classList.contains('dark') ? 'Сменить на светлую тему' : 'Сменить на темную тему';
+        });
+    </script>
+    <br>
+    <h3>DS создателя: .hehe_hehe.</h3>
+</body>
+</html>
+
